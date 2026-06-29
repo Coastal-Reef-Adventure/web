@@ -1146,6 +1146,13 @@
         <p>No cancellations and no refunds. Rebooking is allowed if requested at least 5 days before the scheduled rental date.</p>
       </div>
     </div>
+    <div class="term-item">
+      <div class="term-num">12</div>
+      <div class="term-content">
+        <h4>Flight Delays &amp; Cancellations</h4>
+        <p>For airport transfer bookings and delivery or collection at the airport, CRA will wait up to 30 minutes past the scheduled pickup time at no extra charge. Waiting beyond 30 minutes is subject to the out-of-office surcharge rate of ₱100/hour. In the event of flight cancellations or significant delays, the client must notify CRA at least 2 hours in advance to reschedule at no penalty. Late notice reschedules or no-shows are non-refundable.</p>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1840,9 +1847,14 @@
           </div>
         </div>
 
+        <div style="margin:1rem 0;padding:0.7rem 1rem;background:rgba(42,122,122,0.06);border:1px solid rgba(42,122,122,0.2);border-radius:8px;display:flex;align-items:flex-start;gap:0.6rem;">
+          <span style="font-size:1rem;flex-shrink:0;margin-top:0.05rem;">📋</span>
+          <p style="font-size:0.8rem;color:var(--wood);line-height:1.6;margin:0;">Before submitting your booking, please make sure you have read and understood our <strong><a href="#terms" style="color:var(--teal-dark);text-decoration:underline;">Terms &amp; Conditions</a></strong>. By sending your booking request, you agree to all terms stated therein.</p>
+        </div>
+
         <div class="screenshot-note">
           <div class="screenshot-icon">📸</div>
-          <p>Fill out the form completely, then <strong>take a screenshot</strong> and send it to us via DM on Instagram or Facebook. We'll generate your quotation from there.</p>
+          <p>After completing the booking form, please <strong>take a screenshot</strong> of the entire form and the cost estimate, then send it to us via DM on <strong>Instagram</strong>, <strong>Facebook</strong>, or <strong>WhatsApp</strong>. We'll confirm and assist you with your booking from there.</p>
         </div>
       </div>
     </div>
@@ -2136,7 +2148,6 @@
               is24Hr = true;
               if (extraHours > 0.5) {
                 lateHours = Math.ceil(extraHours);
-                if (lateHours > 12) { days += 1; lateHours = 0; }
               }
             }
           }
@@ -2154,28 +2165,16 @@
       let dailyRate = is24Hr ? rates['24hr'] : rates.dayUse;
       let lateFeeLabel = '';
 
-      // Compute deadline string for day use display
-      let deadlineStr = '';
-      if (!is24Hr && startTimeVal) {
-        const [sh, sm] = startTimeVal.split(':').map(Number);
-        const deadlineMins = Math.min((sh + sm / 60 + 12), 19) * 60;
-        const dh = Math.floor(deadlineMins / 60);
-        const dm = deadlineMins % 60;
-        const ap = dh >= 12 ? 'PM' : 'AM';
-        const h12 = dh % 12 || 12;
-        deadlineStr = `${h12}:${String(dm).padStart(2,'0')} ${ap}`;
-      }
-
       if (lateHours > 0) {
-        if (lateHours <= 8) {
+        if (lateHours <= 3) {
           lateFee = lateHours * 0.10 * dailyRate;
-          lateFeeLabel = `${lateHours} hr(s) past ${deadlineStr || '7:00 PM'} · 10%/hr`;
+          lateFeeLabel = `${lateHours} hr(s) late · 10%/hr`;
         } else if (lateHours <= 12) {
           lateFee = rates.dayUse;
-          lateFeeLabel = `${lateHours} hrs late · +1 Day Use rate`;
+          lateFeeLabel = `${lateHours} hrs late · Day Use rate charged`;
         } else {
           lateFee = rates['24hr'];
-          lateFeeLabel = `${lateHours} hrs late · +1 day (24hr rate)`;
+          lateFeeLabel = `${lateHours} hrs late · 24hr rate charged`;
         }
       }
 
