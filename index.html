@@ -720,6 +720,65 @@
       display: block; margin: 0.8rem 0 0.4rem; width: fit-content;
       font-weight: 600;
     }
+    /* COST ESTIMATE CARD ROWS */
+    .ce-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.22rem 0;
+      border-bottom: 1px solid rgba(192,98,42,0.08);
+      gap: 0.5rem;
+    }
+    .ce-row:last-child { border-bottom: none; }
+    .ce-label {
+      color: var(--wood);
+      font-size: 0.76rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      flex: 1;
+      min-width: 0;
+    }
+    .ce-val {
+      font-family: 'JetBrains Mono', 'DM Mono', monospace;
+      font-size: 0.76rem;
+      color: var(--wood);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .ce-strong { font-weight: 700; color: var(--ink); }
+    .ce-warn .ce-label { color: var(--terra); }
+    .ce-warn .ce-val { color: var(--terra); }
+    .ce-subtotal {
+      background: rgba(192,98,42,0.04);
+      margin: 0.1rem -0.85rem;
+      padding: 0.22rem 0.85rem;
+    }
+    .ce-badge {
+      display: inline-block;
+      background: var(--terra);
+      color: #fff;
+      font-size: 0.55rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 0.1rem 0.35rem;
+      border-radius: 3px;
+    }
+    .ce-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.35rem 0 0.1rem;
+      margin-top: 0.15rem;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--terra);
+      border-top: 1.5px solid rgba(192,98,42,0.25);
+      font-family: 'Outfit', sans-serif;
+      letter-spacing: 0.04em;
+    }
+
     .screenshot-note {
       display: flex; gap: 0.9rem; align-items: flex-start;
       background: rgba(42,138,137,0.07); border: 1.5px dashed var(--teal);
@@ -890,6 +949,68 @@
     @media (prefers-reduced-motion: reduce) {
       * { transition: none !important; animation: none !important; }
     }
+
+    /* ── LOGISTICS TABLE ── */
+    .logistics-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0;
+    }
+    .logistics-table th, .logistics-table td {
+      padding: 0.85rem 0.8rem;
+      vertical-align: middle;
+      text-align: center;
+      border-bottom: 1px solid var(--sand);
+    }
+    .logistics-table th {
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    .logistics-table th:not(:last-child),
+    .logistics-table td:not(:last-child) {
+      border-right: 1px solid var(--sand);
+    }
+    .logistics-table thead th:not(:last-child) {
+      border-right: 1px solid rgba(245, 240, 232, 0.25);
+    }
+    .logistics-table thead th.we-collect-header {
+      background: var(--terra) !important;
+      color: var(--cream) !important;
+    }
+    .logistics-table tbody td.zone-cell {
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .logistics-table tbody td.deliver-cell {
+      font-weight: 500;
+      color: var(--teal-dark);
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(42, 138, 137, 0.06);
+    }
+    .logistics-table tbody td.collect-cell {
+      font-weight: 500;
+      color: var(--terra);
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(192, 98, 42, 0.07);
+    }
+    .logistics-table tbody td.collect-cell span {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 500;
+      margin-left: 0.2rem;
+      white-space: nowrap;
+    }
+    .logistics-table tbody tr:hover td.deliver-cell {
+      background: rgba(42, 138, 137, 0.12);
+    }
+    .logistics-table tbody tr:hover td.collect-cell {
+      background: rgba(192, 98, 42, 0.14);
+    }
+    .logistics-table tbody tr:last-child td {
+      border-bottom: none;
+    }
   </style>
 </head>
 <body>
@@ -987,7 +1108,7 @@
       <div class="term-num">06</div>
       <div class="term-content">
         <h4>Out-of-Office Hours Surcharge</h4>
-        <p>Office hours are 7:00 AM–7:00 PM. Requests outside these hours incur a ₱50/hour surcharge (rounded up) for delivery, pick-up, or staff receiving the vehicle.</p>
+        <p>Office hours are 7:00 AM–7:00 PM. Requests outside these hours incur a ₱100/hour surcharge (rounded up) for delivery, pick-up, or staff receiving the vehicle.</p>
       </div>
     </div>
     <div class="term-item">
@@ -1096,7 +1217,8 @@
           <tr><td><div class="unit-name">J9</div><div class="unit-sub">2022</div></td><td><div class="unit-name">Kinetic Yellow</div><div class="unit-sub">3 Doors</div></td><td class="price-col">₱3,400</td><td class="price-col">₱3,900</td></tr>
           <tr><td><div class="unit-name">J10</div><div class="unit-sub">2021</div></td><td><div class="unit-name">Gray × Orange</div><div class="unit-sub">3 Doors</div></td><td class="price-col">₱3,400</td><td class="price-col">₱3,900</td></tr>
           <tr><td><div class="unit-name">J12</div><div class="unit-sub">2023</div></td><td><div class="unit-name">Chiffon Ivory</div><div class="unit-sub">3 Doors</div></td><td class="price-col">₱3,400</td><td class="price-col">₱3,900</td></tr>
-          <tr><td><div class="unit-name">J13</div><div class="unit-sub">2023</div></td><td><div class="unit-name">Pacific Ocean Blue</div><div class="unit-sub">3 Doors</div></td><td class="price-col">₱3,400</td><td class="price-col">₱3,900</td></tr>
+          <tr><td><div class="unit-name">J13</div><div class="unit-sub">2023</div></td><td><div class="unit-name">Neon Yellow</div><div class="unit-sub">3 Doors</div></td><td class="price-col">₱3,400</td><td class="price-col">₱3,900</td></tr>
+          <tr><td><div class="unit-name">J15</div><div class="unit-sub">2022</div></td><td><div class="unit-name">Chiffon Ivory</div><div class="unit-sub">3 Doors</div></td><td class="price-col">₱3,400</td><td class="price-col">₱3,900</td></tr>
           <tr><td><div class="unit-name">J16</div><div class="unit-sub">2023</div></td><td><div class="unit-name">Army Green × Cream Ivory</div><div class="unit-sub">3 Doors</div></td><td class="price-col">₱3,400</td><td class="price-col">₱3,900</td></tr>
           <tr><td><div class="unit-name">J23</div><div class="unit-sub">2022</div></td><td><div class="unit-name">Army Green</div><div class="unit-sub">3 Doors</div></td><td class="price-col">₱3,400</td><td class="price-col">₱3,900</td></tr>
           <tr><td><div class="unit-name">J17</div><div class="unit-sub">2024</div><div class="unit-sub"><span class="badge badge-5door">5 Doors</span></div></td><td><div class="unit-name">Cream × Gold</div><div class="unit-sub">5 Doors</div></td><td class="price-col">₱3,900</td><td class="price-col">₱4,400</td></tr>
@@ -1120,7 +1242,7 @@
           <tr><td><div class="unit-name">SP1</div></td><td><div class="unit-name">Granite Gray</div><div class="unit-sub"><span class="badge badge-manual">Manual</span> · 4 PAX</div></td><td class="price-col">₱2,500</td><td class="price-col">₱2,500</td></tr>
           <tr><td><div class="unit-name">SP2 · SP3</div></td><td><div class="unit-name">Orange</div><div class="unit-sub"><span class="badge badge-manual">Manual</span> · 4 PAX</div></td><td class="price-col">₱2,500</td><td class="price-col">₱2,500</td></tr>
           <tr><td><div class="unit-name">SP4</div></td><td><div class="unit-name">Granite Gray</div><div class="unit-sub"><span class="badge badge-auto">Auto</span> · 4 PAX</div></td><td class="price-col">₱2,700</td><td class="price-col">₱3,200</td></tr>
-          <tr><td><div class="unit-name">SP8</div></td><td><div class="unit-name">White Pearl × Orange</div><div class="unit-sub"><span class="badge badge-auto">Auto</span> · 4 PAX</div></td><td class="price-col">₱2,700</td><td class="price-col">₱3,200</td></tr>
+          <tr><td><div class="unit-name">SP8</div></td><td><div class="unit-name">Orange</div><div class="unit-sub"><span class="badge badge-auto">Auto</span> · 4 PAX</div></td><td class="price-col">₱2,700</td><td class="price-col">₱3,200</td></tr>
           <tr><td><div class="unit-name">SP5 · SP6 · SP7</div></td><td><div class="unit-name">White Pearl</div><div class="unit-sub"><span class="badge badge-auto">Auto</span> · 4 PAX</div></td><td class="price-col">₱3,000</td><td class="price-col">₱3,500</td></tr>
         </tbody>
       </table>
@@ -1139,7 +1261,6 @@
         <tbody>
           <tr><td><div class="unit-name">MG 1</div></td><td><div class="unit-name">White</div><div class="unit-sub">5 PAX</div></td><td class="price-col">₱3,000</td><td class="price-col">₱3,500</td></tr>
           <tr><td><div class="unit-name">MG 2</div></td><td><div class="unit-name">Black</div><div class="unit-sub">5 PAX</div></td><td class="price-col">₱3,000</td><td class="price-col">₱3,500</td></tr>
-          <tr><td><div class="unit-name">JUKE 1</div></td><td><div class="unit-name">White</div><div class="unit-sub">4 PAX</div></td><td class="price-col">₱3,500</td><td class="price-col">₱4,000</td></tr>
         </tbody>
       </table>
 
@@ -1173,9 +1294,9 @@
           <th>24HR</th>
         </tr></thead>
         <tbody>
-          <tr><td><div class="unit-name">STARGAZER SG</div><div class="unit-sub">Premium</div></td><td><div class="unit-name">Silver</div><div class="unit-sub">7 PAX</div></td><td class="price-col">₱4,000</td><td class="price-col">₱4,500</td></tr>
-          <tr><td><div class="unit-name">STARGAZER SG</div><div class="unit-sub">Standard</div></td><td><div class="unit-name">Silver</div><div class="unit-sub">7 PAX</div></td><td class="price-col">₱3,500</td><td class="price-col">₱4,000</td></tr>
-          <tr><td><div class="unit-name">STARGAZER SG</div><div class="unit-sub">Standard</div></td><td><div class="unit-name">White</div><div class="unit-sub">7 PAX</div></td><td class="price-col">₱3,500</td><td class="price-col">₱4,000</td></tr>
+          <tr><td><div class="unit-name">Stargazer SG1</div><div class="unit-sub">Premium</div></td><td><div class="unit-name">Silver</div><div class="unit-sub">7 PAX</div></td><td class="price-col">₱4,000</td><td class="price-col">₱4,500</td></tr>
+          <tr><td><div class="unit-name">Stargazer SG2</div><div class="unit-sub">Standard</div></td><td><div class="unit-name">White</div><div class="unit-sub">7 PAX</div></td><td class="price-col">₱3,500</td><td class="price-col">₱4,000</td></tr>
+          <tr><td><div class="unit-name">Stargazer SG3</div><div class="unit-sub">Standard</div></td><td><div class="unit-name">Silver</div><div class="unit-sub">7 PAX</div></td><td class="price-col">₱3,500</td><td class="price-col">₱4,000</td></tr>
         </tbody>
       </table>
 
@@ -1220,44 +1341,44 @@
         <p>One-way service fees by location</p>
       </div>
       <div class="rates-wrap">
-        <table class="rates-table" style="margin: 0;">
+        <table class="rates-table logistics-table" id="deliveryCollectionTable">
           <thead>
             <tr>
               <th>Area / Zone</th>
-              <th>We Deliver</th>
-              <th>We Collect</th>
+              <th>We Deliver<br><span style="font-size: 0.55rem; font-weight: normal; letter-spacing: 0.04em; opacity: 0.9;">( Flat Rate )</span></th>
+              <th class="we-collect-header">We Collect<br><span style="font-size: 0.55rem; font-weight: normal; letter-spacing: 0.04em; opacity: 0.9;">( + Fuel Top-Up* )</span></th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td style="font-weight: 500; color: var(--ink);">General Luna</td>
-              <td style="font-weight: 500; color: var(--teal-dark); font-family: 'JetBrains Mono', monospace;">₱350</td>
-              <td style="font-weight: 500; color: var(--teal-dark); font-family: 'JetBrains Mono', monospace;">₱350 <span style="font-size: 0.72rem; color: var(--terra); font-weight: 600; margin-left: 0.2rem; white-space: nowrap;">+ Fuel*</span></td>
+              <td class="zone-cell">General Luna</td>
+              <td class="deliver-cell">₱350</td>
+              <td class="collect-cell">₱350 <span>+ Fuel*</span></td>
             </tr>
             <tr>
-              <td style="font-weight: 500; color: var(--ink);">Malinao · Libertad</td>
-              <td style="font-weight: 500; color: var(--teal-dark); font-family: 'JetBrains Mono', monospace;">₱900</td>
-              <td style="font-weight: 500; color: var(--teal-dark); font-family: 'JetBrains Mono', monospace;">₱900 <span style="font-size: 0.72rem; color: var(--terra); font-weight: 600; margin-left: 0.2rem; white-space: nowrap;">+ Fuel*</span></td>
+              <td class="zone-cell">Malinao · Libertad</td>
+              <td class="deliver-cell">₱900</td>
+              <td class="collect-cell">₱900 <span>+ Fuel*</span></td>
             </tr>
             <tr>
-              <td style="font-weight: 500; color: var(--ink);">Sta. Fe</td>
-              <td style="font-weight: 500; color: var(--teal-dark); font-family: 'JetBrains Mono', monospace;">₱1,400</td>
-              <td style="font-weight: 500; color: var(--teal-dark); font-family: 'JetBrains Mono', monospace;">₱1,400 <span style="font-size: 0.72rem; color: var(--terra); font-weight: 600; margin-left: 0.2rem; white-space: nowrap;">+ Fuel*</span></td>
+              <td class="zone-cell">Sta. Fe</td>
+              <td class="deliver-cell">₱1,400</td>
+              <td class="collect-cell">₱1,400 <span>+ Fuel*</span></td>
             </tr>
             <tr>
-              <td style="font-weight: 500; color: var(--ink);">Dapa · Union</td>
-              <td style="font-weight: 500; color: var(--teal-dark); font-family: 'JetBrains Mono', monospace;">₱1,700</td>
-              <td style="font-weight: 500; color: var(--teal-dark); font-family: 'JetBrains Mono', monospace;">₱1,700 <span style="font-size: 0.72rem; color: var(--terra); font-weight: 600; margin-left: 0.2rem; white-space: nowrap;">+ Fuel*</span></td>
+              <td class="zone-cell">Dapa · Union</td>
+              <td class="deliver-cell">₱1,700</td>
+              <td class="collect-cell">₱1,700 <span>+ Fuel*</span></td>
             </tr>
             <tr>
-              <td style="font-weight: 500; color: var(--ink);">Airport · Pilar · Maasin</td>
-              <td style="font-weight: 500; color: var(--teal-dark); font-family: 'JetBrains Mono', monospace;">₱2,200</td>
-              <td style="font-weight: 500; color: var(--teal-dark); font-family: 'JetBrains Mono', monospace;">₱2,200 <span style="font-size: 0.72rem; color: var(--terra); font-weight: 600; margin-left: 0.2rem; white-space: nowrap;">+ Fuel*</span></td>
+              <td class="zone-cell">Airport · Pilar · Maasin</td>
+              <td class="deliver-cell">₱2,200</td>
+              <td class="collect-cell">₱2,200 <span>+ Fuel*</span></td>
             </tr>
             <tr>
-              <td style="font-weight: 500; color: var(--ink); border-bottom: none;">North · Pacifico</td>
-              <td style="font-weight: 500; color: var(--teal-dark); font-family: 'JetBrains Mono', monospace; border-bottom: none;">₱2,700</td>
-              <td style="font-weight: 500; color: var(--teal-dark); font-family: 'JetBrains Mono', monospace; border-bottom: none;">₱2,700 <span style="font-size: 0.72rem; color: var(--terra); font-weight: 600; margin-left: 0.2rem; white-space: nowrap;">+ Fuel*</span></td>
+              <td class="zone-cell">North · Pacifico</td>
+              <td class="deliver-cell">₱2,700</td>
+              <td class="collect-cell">₱2,700 <span>+ Fuel*</span></td>
             </tr>
           </tbody>
         </table>
@@ -1511,32 +1632,30 @@
           <select id="fVehicle" onchange="updateFormFields()">
             <option value="">Select a vehicle or service</option>
             <optgroup label="Jimny (3-Door)">
-              <option value="rental">Jimny J5 – Chiffon Ivory 2025</option>
-              <option value="rental">Jimny J6 – Gray 2020</option>
-              <option value="rental">Jimny J7 – White 2022</option>
-              <option value="rental">Jimny J9 – Kinetic Yellow 2022</option>
-              <option value="rental">Jimny J10 – Gray × Orange 2021</option>
-              <option value="rental">Jimny J12 – Chiffon Ivory 2023</option>
-              <option value="rental">Jimny J13 – Pacific Ocean Blue 2023</option>
-              <option value="rental">Jimny J16 – Army Green × Cream Ivory 2023</option>
-              <option value="rental">Jimny J23 – Army Green 2022</option>
+              <option value="rental">Jimny J5 / J12 / J15 – Chiffon Ivory</option>
+              <option value="rental">Jimny J6 – Gray</option>
+              <option value="rental">Jimny J7 – White</option>
+              <option value="rental">Jimny J9 – Kinetic Yellow</option>
+              <option value="rental">Jimny J10 – Gray × Orange</option>
+              <option value="rental">Jimny J13 – Neon Yellow</option>
+              <option value="rental">Jimny J16 – Army Green × Cream Ivory</option>
+              <option value="rental">Jimny J23 – Army Green</option>
             </optgroup>
             <optgroup label="Jimny (5-Door)">
-              <option value="rental">Jimny J17 – Cream × Gold 2024</option>
-              <option value="rental">Jimny J18 – Cream × Black 2024</option>
-              <option value="rental">Jimny J19 / J20 / J21 – Black 2024</option>
+              <option value="rental">Jimny J17 – Cream × Gold</option>
+              <option value="rental">Jimny J18 – Cream × Black</option>
+              <option value="rental">Jimny J19 / J20 / J21 – Black</option>
             </optgroup>
             <optgroup label="S-Presso">
               <option value="rental">S-Presso SP1 – Granite Gray (Manual)</option>
               <option value="rental">S-Presso SP2/SP3 – Orange (Manual)</option>
               <option value="rental">S-Presso SP4 – Granite Gray (Auto)</option>
               <option value="rental">S-Presso SP5/SP6/SP7 – White Pearl (Auto)</option>
-              <option value="rental">S-Presso SP8 – White Pearl × Orange (Auto)</option>
+              <option value="rental">S-Presso SP8 – Orange (Auto)</option>
             </optgroup>
             <optgroup label="Crossover">
               <option value="rental">MG 1 – White (5 PAX)</option>
               <option value="rental">MG 2 – Black (5 PAX)</option>
-              <option value="rental">Juke 1 – White (4 PAX)</option>
             </optgroup>
             <optgroup label="SUV">
               <option value="rental">Prado 1 – White (7 PAX)</option>
@@ -1544,9 +1663,9 @@
               <option value="rental">GAC 1 – Crystal White (7 PAX)</option>
             </optgroup>
             <optgroup label="MPV (Stargazer)">
-              <option value="rental">STARGAZER SG – Silver Premium (7 PAX)</option>
-              <option value="rental">STARGAZER SG – Silver Standard (7 PAX)</option>
-              <option value="rental">STARGAZER SG – White Standard (7 PAX)</option>
+              <option value="rental">Stargazer SG1 – Silver Premium (7 PAX)</option>
+              <option value="rental">Stargazer SG2 – White Standard (7 PAX)</option>
+              <option value="rental">Stargazer SG3 – Silver Standard (7 PAX)</option>
             </optgroup>
             <optgroup label="Pickup">
               <option value="rental">Ranger 1 – Silver (5 PAX)</option>
@@ -1572,6 +1691,7 @@
               <input type="date" id="fStartDate" />
               <input type="time" id="fStartTime" value="08:00" />
             </div>
+            <div class="time-warning" style="color: var(--terra); font-size: 0.75rem; font-weight: 600; margin-top: 0.3rem; display: none;"></div>
           </div>
           <div class="form-row">
             <label>End Date &amp; Time</label>
@@ -1579,6 +1699,7 @@
               <input type="date" id="fEndDate" />
               <input type="time" id="fEndTime" value="08:00" />
             </div>
+            <div class="time-warning" style="color: var(--terra); font-size: 0.75rem; font-weight: 600; margin-top: 0.3rem; display: none;"></div>
           </div>
           <div class="form-section-label">Logistics</div>
           <div class="form-row">
@@ -1628,7 +1749,7 @@
 
         <!-- TRANSPORT FIELDS -->
         <div id="transportFields" style="display:none;">
-          <div class="form-row-2">
+          <div class="form-row-2" style="margin-bottom: 0.5rem;">
             <div class="form-row">
               <label>Date</label>
               <input type="date" id="fTransportDate" />
@@ -1638,6 +1759,7 @@
               <input type="time" id="fTransportTime" value="08:00" />
             </div>
           </div>
+          <div class="time-warning" style="color: var(--terra); font-size: 0.75rem; font-weight: 600; margin-top: -0.5rem; margin-bottom: 0.8rem; display: none;"></div>
           <div class="form-row">
             <label>Direction</label>
             <select id="fTransportDir">
@@ -1657,7 +1779,7 @@
 
         <!-- TOUR FIELDS -->
         <div id="tourFields" style="display:none;">
-          <div class="form-row-2">
+          <div class="form-row-2" style="margin-bottom: 0.5rem;">
             <div class="form-row">
               <label>Tour Date</label>
               <input type="date" id="fTourDate" />
@@ -1667,6 +1789,7 @@
               <input type="time" id="fTourTime" value="08:00" />
             </div>
           </div>
+          <div class="time-warning" style="color: var(--terra); font-size: 0.75rem; font-weight: 600; margin-top: -0.5rem; margin-bottom: 0.8rem; display: none;"></div>
           <div class="form-row">
             <label>Number of Passengers</label>
             <input type="number" id="fTourPax" min="1" max="14" placeholder="e.g. 3" />
@@ -1681,6 +1804,42 @@
           <label>Additional Notes</label>
           <textarea id="fNotes" placeholder="Special requests, etc."></textarea>
         </div>
+        <!-- LIVE COST ESTIMATE & DOWNPAYMENT COMPUTATION -->
+        <div id="costCalculationBlock" style="display:none;margin:1rem 0;border-radius:12px;overflow:hidden;font-family:'Outfit',sans-serif;box-shadow:0 2px 12px rgba(192,98,42,0.10);border:1px solid rgba(192,98,42,0.18);">
+
+          <!-- Card Header -->
+          <div style="background:var(--terra);padding:0.55rem 0.9rem;display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:0.4rem;">
+              <span style="font-size:0.85rem;">💰</span>
+              <span style="color:#fff;font-size:0.75rem;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;">Cost Estimate</span>
+            </div>
+            <span style="color:rgba(255,255,255,0.7);font-size:0.65rem;letter-spacing:0.06em;text-transform:uppercase;">Auto-computed</span>
+          </div>
+
+          <!-- Breakdown rows -->
+          <div id="costCalculationBreakdown" style="background:#fffdf9;padding:0.55rem 0.85rem;font-size:0.78rem;color:var(--wood);"></div>
+
+          <!-- Payment blocks -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid rgba(192,98,42,0.15);">
+
+            <div style="padding:0.55rem 0.85rem;background:rgba(192,98,42,0.06);border-right:1px solid rgba(192,98,42,0.15);">
+              <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--terra);font-weight:700;margin-bottom:0.2rem;">Step 1 · Pay Now</div>
+              <div id="costDownpayment" style="font-size:1.15rem;font-weight:800;color:var(--terra);letter-spacing:-0.01em;">₱0</div>
+              <div style="font-size:0.6rem;color:var(--muted);margin-top:0.1rem;">50% downpayment · confirms booking</div>
+            </div>
+
+            <div style="padding:0.55rem 0.85rem;background:#fffdf9;">
+              <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--wood);font-weight:700;margin-bottom:0.2rem;">Step 2 · Pay on Pick-up</div>
+              <div style="display:flex;align-items:baseline;gap:0.3rem;">
+                <div id="costBalance" style="font-size:1.15rem;font-weight:800;color:var(--wood);letter-spacing:-0.01em;">₱0</div>
+                <span style="font-size:0.6rem;color:var(--muted);">+ ₱5,000 deposit</span>
+              </div>
+              <div style="font-size:0.6rem;color:var(--muted);margin-top:0.1rem;">balance + refundable deposit</div>
+            </div>
+
+          </div>
+        </div>
+
         <div class="screenshot-note">
           <div class="screenshot-icon">📸</div>
           <p>Fill out the form completely, then <strong>take a screenshot</strong> and send it to us via DM on Instagram or Facebook. We'll generate your quotation from there.</p>
@@ -1780,6 +1939,377 @@
         ? 'var(--terra-lt)' : '';
     });
   });
+
+  // ── OUT OF OFFICE HOURS CHECK ──
+  function checkOfficeHours(e) {
+    const input = e.target;
+    const timeStr = input.value;
+    if (!timeStr) return;
+
+    let warning;
+    if (input.id === 'fStartTime' || input.id === 'fEndTime') {
+      warning = input.closest('.form-row').querySelector('.time-warning');
+    } else if (input.id === 'fTransportTime') {
+      warning = document.getElementById('transportFields').querySelector('.time-warning');
+    } else if (input.id === 'fTourTime') {
+      warning = document.getElementById('tourFields').querySelector('.time-warning');
+    }
+    if (!warning) return;
+
+    const [h, m] = timeStr.split(':').map(Number);
+    const totalHours = h + m / 60;
+
+    let diff = 0;
+    if (totalHours < 7) {
+      diff = 7 - totalHours;
+    } else if (totalHours > 19) {
+      diff = totalHours - 19;
+    }
+
+    const surcharge = diff > 0 ? Math.ceil(diff) * 100 : 0;
+    let diffStr = '';
+    if (diff > 0) {
+      const totalMinutesDiff = Math.round(diff * 60);
+      const diffHours = Math.floor(totalMinutesDiff / 60);
+      const diffMins = totalMinutesDiff % 60;
+
+      if (diffHours > 0) {
+        diffStr += `${diffHours} hour${diffHours === 1 ? '' : 's'}`;
+      }
+      if (diffMins > 0) {
+        if (diffStr) diffStr += ' and ';
+        diffStr += `${diffMins} minute${diffMins === 1 ? '' : 's'}`;
+      }
+    }
+
+    if (diff > 0) {
+      let label = 'Selected time';
+      if (input.id === 'fStartTime') label = 'Start time';
+      else if (input.id === 'fEndTime') label = 'End time';
+      else if (input.id === 'fTransportTime') label = 'Transport time';
+      else if (input.id === 'fTourTime') label = 'Tour time';
+
+      warning.textContent = `⚠️ ${label} is outside office hours (7AM–7PM) by ${diffStr} (Surcharge: ₱${surcharge}).`;
+      warning.style.display = 'block';
+    } else {
+      warning.style.display = 'none';
+    }
+    // Update live cost calculation on warning toggle
+    calculateBookingCost();
+  }
+
+  // ── LIVE COST CALCULATOR ──
+  const VEHICLE_RATES = {
+    // Jimny 3-Door
+    "Jimny J5 / J12 / J15 – Chiffon Ivory": { dayUse: 3400, "24hr": 3900 },
+    "Jimny J6 – Gray": { dayUse: 3400, "24hr": 3900 },
+    "Jimny J7 – White": { dayUse: 3400, "24hr": 3900 },
+    "Jimny J9 – Kinetic Yellow": { dayUse: 3400, "24hr": 3900 },
+    "Jimny J10 – Gray × Orange": { dayUse: 3400, "24hr": 3900 },
+    "Jimny J13 – Neon Yellow": { dayUse: 3400, "24hr": 3900 },
+    "Jimny J16 – Army Green × Cream Ivory": { dayUse: 3400, "24hr": 3900 },
+    "Jimny J23 – Army Green": { dayUse: 3400, "24hr": 3900 },
+    // Jimny 5-Door
+    "Jimny J17 – Cream × Gold": { dayUse: 3900, "24hr": 4400 },
+    "Jimny J18 – Cream × Black": { dayUse: 3900, "24hr": 4400 },
+    "Jimny J19 / J20 / J21 – Black": { dayUse: 3900, "24hr": 4400 },
+    // S-Presso
+    "S-Presso SP1 – Granite Gray (Manual)": { dayUse: 2500, "24hr": 2500 },
+    "S-Presso SP2/SP3 – Orange (Manual)": { dayUse: 2500, "24hr": 2500 },
+    "S-Presso SP4 – Granite Gray (Auto)": { dayUse: 2700, "24hr": 3200 },
+    "S-Presso SP5/SP6/SP7 – White Pearl (Auto)": { dayUse: 3000, "24hr": 3500 },
+    "S-Presso SP8 – Orange (Auto)": { dayUse: 2700, "24hr": 3200 },
+    // Crossover
+    "MG 1 – White (5 PAX)": { dayUse: 3000, "24hr": 3500 },
+    "MG 2 – Black (5 PAX)": { dayUse: 3000, "24hr": 3500 },
+    // SUV
+    "Prado 1 – White (7 PAX)": { dayUse: 4500, "24hr": 5000 },
+    "Everest 1 – White (7 PAX)": { dayUse: 4500, "24hr": 5000 },
+    "GAC 1 – Crystal White (7 PAX)": { dayUse: 6500, "24hr": 7000 },
+    // MPV (Stargazer)
+    "Stargazer SG1 – Silver Premium (7 PAX)": { dayUse: 4000, "24hr": 4500 },
+    "Stargazer SG2 – White Standard (7 PAX)": { dayUse: 3500, "24hr": 4000 },
+    "Stargazer SG3 – Silver Standard (7 PAX)": { dayUse: 3500, "24hr": 4000 },
+    // Pickup
+    "Ranger 1 – Silver (5 PAX)": { dayUse: 5000, "24hr": 5500 },
+    // Private Transport
+    "Airport Transfer – Ford Transit": { flat: 3500, maxFreePax: 5 },
+    "Airport Transfer – GAC": { flat: 3500, maxFreePax: 4 },
+    "Airport Transfer – Stargazer": { flat: 2500, maxFreePax: 4 },
+    // Island Tours
+    "Island Tour – Ford Transit (14 PAX)": { flat: 8200 },
+    "Island Tour – GAC (7 PAX)": { flat: 7500 },
+    "Island Tour – Dune Buggy (3 PAX)": { flat: 4000 }
+  };
+
+  const AREA_SURCHARGES = {
+    self: 0,
+    gl: 350,
+    mal: 900,
+    sta: 1400,
+    dapa: 1700,
+    airport: 2200,
+    north: 2700
+  };
+
+  function getOutOfOfficeSurcharge(timeStr) {
+    if (!timeStr) return 0;
+    const [h, m] = timeStr.split(':').map(Number);
+    const totalHours = h + m / 60;
+    let diff = 0;
+    if (totalHours < 7) {
+      diff = 7 - totalHours;
+    } else if (totalHours > 19) {
+      diff = totalHours - 19;
+    }
+    return diff > 0 ? Math.ceil(diff) * 100 : 0;
+  }
+
+  function calculateBookingCost() {
+    const sel = document.getElementById('fVehicle');
+    if (!sel) return;
+    const selectedText = sel.options[sel.selectedIndex].text;
+    const type = sel.options[sel.selectedIndex].value;
+
+    const block = document.getElementById('costCalculationBlock');
+    const breakdown = document.getElementById('costCalculationBreakdown');
+    const downpaymentEl = document.getElementById('costDownpayment');
+    const balanceEl = document.getElementById('costBalance');
+
+    if (!type || !VEHICLE_RATES[selectedText]) {
+      block.style.display = 'none';
+      return;
+    }
+
+    block.style.display = 'block';
+    let total = 0;
+    let html = '';
+
+    if (type === 'rental') {
+      const startDateVal = document.getElementById('fStartDate').value;
+      const startTimeVal = document.getElementById('fStartTime').value;
+      const endDateVal = document.getElementById('fEndDate').value;
+      const endTimeVal = document.getElementById('fEndTime').value;
+
+      let days = 0;
+      let is24Hr = false;
+      let lateHours = 0;
+      let lateFee = 0;
+
+      if (startDateVal && startTimeVal) {
+        // Default end time to 19:00 if not provided and same day
+        const effectiveEndDate = endDateVal || startDateVal;
+        const effectiveEndTime = endTimeVal || '19:00';
+
+        const start = new Date(startDateVal + 'T' + startTimeVal);
+        const end   = new Date(effectiveEndDate + 'T' + effectiveEndTime);
+        const diffMs = end - start;
+
+        if (!isNaN(diffMs) && diffMs > 0) {
+          const diffHours = diffMs / (1000 * 60 * 60);
+
+          if (startDateVal === effectiveEndDate) {
+            // Same day = Day Use
+            days = 1;
+            is24Hr = false;
+            const [sh, sm] = startTimeVal.split(':').map(Number);
+            const [eh, em] = effectiveEndTime.split(':').map(Number);
+            const startHour = sh + sm / 60;
+            const endHour   = eh + em / 60;
+
+            // Deadline = start time + 12hrs, capped at 19:00 (7PM)
+            const deadlineHour = Math.min(startHour + 12, 19);
+
+            if (endHour > deadlineHour) {
+              const extraHours = endHour - deadlineHour;
+              if (extraHours > 0.5) lateHours = Math.ceil(extraHours);
+            }
+          } else {
+            // Different dates = 24hr rental
+            const baseDays = Math.floor(diffHours / 24);
+            const extraHours = diffHours % 24;
+            if (baseDays === 0) {
+              days = 1;
+              is24Hr = true;
+            } else {
+              days = baseDays;
+              is24Hr = true;
+              if (extraHours > 0.5) {
+                lateHours = Math.ceil(extraHours);
+                if (lateHours > 12) { days += 1; lateHours = 0; }
+              }
+            }
+          }
+        }
+      }
+
+      if (days === 0) {
+        breakdown.innerHTML = '<span style="color:var(--terra);font-weight:500;">Please select a start date and start time to compute.</span>';
+        downpaymentEl.textContent = '₱0';
+        balanceEl.textContent = '₱0';
+        return;
+      }
+
+      const rates = VEHICLE_RATES[selectedText];
+      let dailyRate = is24Hr ? rates['24hr'] : rates.dayUse;
+      let lateFeeLabel = '';
+
+      // Compute deadline string for day use display
+      let deadlineStr = '';
+      if (!is24Hr && startTimeVal) {
+        const [sh, sm] = startTimeVal.split(':').map(Number);
+        const deadlineMins = Math.min((sh + sm / 60 + 12), 19) * 60;
+        const dh = Math.floor(deadlineMins / 60);
+        const dm = deadlineMins % 60;
+        const ap = dh >= 12 ? 'PM' : 'AM';
+        const h12 = dh % 12 || 12;
+        deadlineStr = `${h12}:${String(dm).padStart(2,'0')} ${ap}`;
+      }
+
+      if (lateHours > 0) {
+        if (lateHours <= 8) {
+          lateFee = lateHours * 0.10 * dailyRate;
+          lateFeeLabel = `${lateHours} hr(s) past ${deadlineStr || '7:00 PM'} · 10%/hr`;
+        } else if (lateHours <= 12) {
+          lateFee = rates.dayUse;
+          lateFeeLabel = `${lateHours} hrs late · +1 Day Use rate`;
+        } else {
+          lateFee = rates['24hr'];
+          lateFeeLabel = `${lateHours} hrs late · +1 day (24hr rate)`;
+        }
+      }
+
+      const baseTotal = dailyRate * days;
+      total += baseTotal + lateFee;
+
+      html += `<div class="ce-row"><span class="ce-label"><span class="ce-badge">${is24Hr ? '24HR' : 'Day Use'}</span> ${selectedText}</span><span class="ce-val">₱${dailyRate.toLocaleString()} × ${days}d</span></div>`;
+      html += `<div class="ce-row ce-subtotal"><span class="ce-label">Base rental</span><span class="ce-val ce-strong">₱${baseTotal.toLocaleString()}</span></div>`;
+
+      if (lateFee > 0) {
+        html += `<div class="ce-row ce-warn"><span class="ce-label">⏰ Late return · ${lateFeeLabel}</span><span class="ce-val">₱${lateFee.toLocaleString()}</span></div>`;
+      }
+
+      // Logistics surcharges
+      const deliveryCode = document.getElementById('fDeliveryArea').value;
+      const pickupCode = document.getElementById('fPickupArea').value;
+      const deliveryCost = AREA_SURCHARGES[deliveryCode] || 0;
+      const pickupCost = AREA_SURCHARGES[pickupCode] || 0;
+
+      if (deliveryCost > 0) {
+        total += deliveryCost;
+        html += `<div class="ce-row"><span class="ce-label">🚗 Delivery</span><span class="ce-val">₱${deliveryCost.toLocaleString()}</span></div>`;
+      }
+      if (pickupCost > 0) {
+        total += pickupCost;
+        html += `<div class="ce-row"><span class="ce-label">🔄 Collection</span><span class="ce-val">₱${pickupCost.toLocaleString()} <span style="font-size:0.65rem;color:var(--terra);font-weight:600;">+ fuel top-up</span></span></div>`;
+      }
+
+      // Driver add-on
+      const driverVal = document.getElementById('fDriver').value;
+      if (driverVal === 'yes') {
+        const driverCost = 1000 * days;
+        total += driverCost;
+        html += `<div class="ce-row"><span class="ce-label">👤 Driver add-on</span><span class="ce-val">₱${driverCost.toLocaleString()}</span></div>`;
+      }
+
+      // Out-of-office hours
+      const startSurcharge = getOutOfOfficeSurcharge(startTimeVal);
+      const endSurcharge = getOutOfOfficeSurcharge(endTimeVal);
+      const oooTotal = startSurcharge + endSurcharge;
+
+      if (oooTotal > 0) {
+        total += oooTotal;
+        html += `<div class="ce-row ce-warn"><span class="ce-label">🌙 Out-of-Office Hours Surcharge (7AM–7PM)</span><span class="ce-val">₱${oooTotal.toLocaleString()}</span></div>`;
+      }
+
+    } else if (type === 'transport') {
+      const flat = VEHICLE_RATES[selectedText].flat;
+      const maxFree = VEHICLE_RATES[selectedText].maxFreePax;
+      const paxCount = parseInt(document.getElementById('fTransportPax').value) || 1;
+      const extraPax = Math.max(0, paxCount - maxFree);
+      const extraCost = extraPax * 400;
+
+      total += flat + extraCost;
+
+      html += `<div class="ce-row"><span class="ce-label"><span class="ce-badge">Transfer</span> ${selectedText}</span><span class="ce-val">₱${flat.toLocaleString()}</span></div>`;
+      
+      if (extraCost > 0) {
+        html += `<div class="ce-row"><span class="ce-label">👥 Extra pax (${extraPax} × ₱400)</span><span class="ce-val">₱${extraCost.toLocaleString()}</span></div>`;
+      }
+
+      const transportTime = document.getElementById('fTransportTime').value;
+      const oooTotal = getOutOfOfficeSurcharge(transportTime);
+      if (oooTotal > 0) {
+        total += oooTotal;
+        html += `<div class="ce-row ce-warn"><span class="ce-label">🌙 Out-of-Office Hours Surcharge (7AM–7PM)</span><span class="ce-val">₱${oooTotal.toLocaleString()}</span></div>`;
+      }
+
+    } else if (type === 'tour') {
+      const flat = VEHICLE_RATES[selectedText].flat;
+      total += flat;
+
+      html += `<div class="ce-row"><span class="ce-label"><span class="ce-badge">Island Tour</span> ${selectedText}</span><span class="ce-val">₱${flat.toLocaleString()}</span></div>`;
+
+      const tourTime = document.getElementById('fTourTime').value;
+      const oooTotal = getOutOfOfficeSurcharge(tourTime);
+      if (oooTotal > 0) {
+        total += oooTotal;
+        html += `<div class="ce-row ce-warn"><span class="ce-label">🌙 Out-of-Office Hours Surcharge (7AM–7PM)</span><span class="ce-val">₱${oooTotal.toLocaleString()}</span></div>`;
+      }
+    }
+
+    html += `<div class="ce-total"><span>TOTAL</span><span>₱${total.toLocaleString()}</span></div>`;
+    html += `<div style="margin-top:0.45rem;padding:0.4rem 0.5rem;background:rgba(192,98,42,0.06);border-radius:5px;border-left:2px solid var(--terra);font-size:0.65rem;color:var(--muted);line-height:1.5;"><strong style="color:var(--terra);">⚠ Estimate only.</strong> This computation is provided to assist in your booking. The actual amount due is subject to vehicle availability and final confirmation of your quotation.</div>`;
+    breakdown.innerHTML = html;
+
+    const downpayment = Math.round(total / 2);
+    const balance = total - downpayment;
+
+    downpaymentEl.textContent = `₱${downpayment.toLocaleString()}`;
+    balanceEl.textContent = `₱${balance.toLocaleString()}`;
+  }
+
+  // Bind calculation to form changes
+  const computeInputs = [
+    'fVehicle', 'fStartDate', 'fStartTime', 'fEndDate', 'fEndTime',
+    'fDeliveryArea', 'fPickupArea', 'fDriver', 'fTransportTime', 'fTransportPax', 'fTourTime'
+  ];
+  ['change', 'input'].forEach(evt => {
+    computeInputs.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener(evt, calculateBookingCost);
+      }
+    });
+  });
+
+  // Wire cost calculation trigger to Tab switchers and toggle helpers
+  const originalUpdateFormFields = updateFormFields;
+  updateFormFields = function() {
+    originalUpdateFormFields();
+    calculateBookingCost();
+  };
+
+  const originalToggleDeliveryDetail = toggleDeliveryDetail;
+  toggleDeliveryDetail = function(type) {
+    originalToggleDeliveryDetail(type);
+    calculateBookingCost();
+  };
+
+  ['change', 'input'].forEach(evt => {
+    document.getElementById('fStartTime').addEventListener(evt, checkOfficeHours);
+    document.getElementById('fEndTime').addEventListener(evt, checkOfficeHours);
+    document.getElementById('fTransportTime').addEventListener(evt, checkOfficeHours);
+    document.getElementById('fTourTime').addEventListener(evt, checkOfficeHours);
+  });
+
+  // Initialize on page load
+  ['fStartTime', 'fEndTime', 'fTransportTime', 'fTourTime'].forEach(id => {
+    const input = document.getElementById(id);
+    if (input) checkOfficeHours({ target: input });
+  });
+
+  calculateBookingCost();
 </script>
 </body>
 </html>
