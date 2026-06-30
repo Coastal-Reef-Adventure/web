@@ -1751,10 +1751,15 @@
           </div>
           <div class="form-row">
             <label>Would you like a driver?</label>
-            <select id="fDriver">
+            <select id="fDriver" onchange="toggleDriverDays()">
               <option value="no">No — Self-drive</option>
               <option value="yes">Yes — Add a driver (+₱1,000/day)</option>
             </select>
+          </div>
+          <div class="form-row" id="driverDaysRow" style="display:none;">
+            <label>Which day(s) would you like the driver?</label>
+            <div id="driverDaysPicker" style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-top:0.3rem;"></div>
+            <p style="font-size:0.7rem;color:var(--muted);margin-top:0.4rem;line-height:1.5;">💡 If the driver is booked on your delivery or pick-up date, that fee is waived (fuel-on-return still applies on pick-up).</p>
           </div>
         </div>
 
@@ -2068,6 +2073,76 @@
     north: 2700
   };
 
+  function getRentalDateRange() {
+    const startVal = document.getElementById('fStartDate').value;
+    const endVal   = document.getElementById('fEndDate').value;
+    if (!startVal) return [];
+    const dates = [];
+    let cur = new Date(startVal + 'T00:00:00');
+    const end = new Date((endVal || startVal) + 'T00:00:00');
+    while (cur <= end) {
+      const y = cur.getFullYear();
+      const m = String(cur.getMonth() + 1).padStart(2, '0');
+      const d = String(cur.getDate()).padStart(2, '0');
+      dates.push(`${y}-${m}-${d}`);
+      cur.setDate(cur.getDate() + 1);
+    }
+    return dates;
+  }
+
+  function fmtDayLabel(dateStr) {
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });
+  }
+
+  function toggleDriverDays() {
+    const driverVal = document.getElementById('fDriver').value;
+    const row = document.getElementById('driverDaysRow');
+    if (driverVal === 'yes') {
+      row.style.display = 'block';
+      renderDriverDaysPicker();
+    } else {
+      row.style.display = 'none';
+    }
+    calculateBookingCost();
+  }
+
+  function renderDriverDaysPicker() {
+    const picker = document.getElementById('driverDaysPicker');
+    const dates = getRentalDateRange();
+    if (dates.length === 0) {
+      picker.innerHTML = '<span style="font-size:0.75rem;color:var(--muted);">Please select rental dates first.</span>';
+      return;
+    }
+    picker.innerHTML = dates.map(d => `
+      <label style="display:flex;align-items:center;gap:0.2rem;background:var(--cream);border:1px solid var(--sand);border-radius:5px;padding:0.18rem 0.4rem;font-size:0.65rem;cursor:pointer;line-height:1.2;">
+        <input type="checkbox" class="driver-day-cb" value="${d}" onchange="calculateBookingCost()" style="cursor:pointer;width:11px;height:11px;margin:0;" />
+        ${fmtDayLabel(d)}
+      </label>
+    `).join('');
+  }
+
+  function getSelectedDriverDays() {
+    return Array.from(document.querySelectorAll('.driver-day-cb:checked')).map(cb => cb.value);
+  }
+
+  // Computes driver cost + delivery/collection waivers
+  // Returns { driverCost, deliveryWaived, pickupWaived }
+  // IMPORTANT: if no driver day is checked, driverDays = [] and both waived flags stay false —
+  // delivery/pickup fees are NOT waived unless a specific matching day is selected.
+  function computeDriverLogic(startDateVal, endDateVal, isDriverYes) {
+    if (!isDriverYes) return { driverCost: 0, deliveryWaived: false, pickupWaived: false };
+    const effectiveEnd = endDateVal || startDateVal;
+    const driverDays = getSelectedDriverDays();
+    if (driverDays.length === 0) {
+      return { driverCost: 0, deliveryWaived: false, pickupWaived: false };
+    }
+    const driverCost = driverDays.length * 1000;
+    const deliveryWaived = driverDays.includes(startDateVal);
+    const pickupWaived   = driverDays.includes(effectiveEnd);
+    return { driverCost, deliveryWaived, pickupWaived };
+  }
+
   function getOutOfOfficeSurcharge(timeStr) {
     if (!timeStr) return 0;
     const [h, m] = timeStr.split(':').map(Number);
@@ -2221,11 +2296,17 @@
             total += oooTotalExt;
             html += `<div class="ce-row ce-warn"><span class="ce-label">🌙 Out-of-Office Hours Surcharge (7AM–7PM)</span><span class="ce-val">₱${oooTotalExt.toLocaleString()}</span></div>`;
           }
-          if (deliveryCost > 0) { total += deliveryCost; html += `<div class="ce-row"><span class="ce-label">🚗 Delivery</span><span class="ce-val">₱${deliveryCost.toLocaleString()}</span></div>`; }
-          if (pickupCost   > 0) { total += pickupCost;   html += `<div class="ce-row"><span class="ce-label">🔄 Collection</span><span class="ce-val">₱${pickupCost.toLocaleString()} <span style="font-size:0.65rem;color:var(--terra);font-weight:600;">+ fuel top-up</span></span></div>`; }
           const driverEl = document.getElementById('fDriver');
-          const driverCost = driverEl && driverEl.value === 'yes' ? 1000 * days : 0;
-          if (driverCost > 0) { total += driverCost; html += `<div class="ce-row"><span class="ce-label">👤 Driver add-on</span><span class="ce-val">₱${driverCost.toLocaleString()}</span></div>`; }
+          const isDriverYes = driverEl && driverEl.value === 'yes';
+          const dLogic = computeDriverLogic(startDateVal, endDateVal, isDriverYes);
+          const finalDeliveryCost = dLogic.deliveryWaived ? 0 : deliveryCost;
+          const finalPickupCost   = dLogic.pickupWaived   ? 0 : pickupCost;
+
+          if (finalDeliveryCost > 0) { total += finalDeliveryCost; html += `<div class="ce-row"><span class="ce-label">🚗 Delivery</span><span class="ce-val">₱${finalDeliveryCost.toLocaleString()}</span></div>`; }
+          else if (deliveryCost > 0 && dLogic.deliveryWaived) { html += `<div class="ce-row"><span class="ce-label">🚗 Delivery</span><span class="ce-val" style="color:var(--teal-dark);">Waived (driver day)</span></div>`; }
+          if (finalPickupCost > 0) { total += finalPickupCost; html += `<div class="ce-row"><span class="ce-label">🔄 Collection</span><span class="ce-val">₱${finalPickupCost.toLocaleString()} <span style="font-size:0.65rem;color:var(--terra);font-weight:600;">+ fuel top-up</span></span></div>`; }
+          else if (pickupCost > 0 && dLogic.pickupWaived) { html += `<div class="ce-row"><span class="ce-label">🔄 Collection</span><span class="ce-val" style="color:var(--teal-dark);">Waived (driver day) <span style="font-size:0.65rem;color:var(--terra);font-weight:600;">+ fuel top-up</span></span></div>`; }
+          if (dLogic.driverCost > 0) { total += dLogic.driverCost; html += `<div class="ce-row"><span class="ce-label">👤 Driver (${getSelectedDriverDays().length} day(s))</span><span class="ce-val">₱${dLogic.driverCost.toLocaleString()}</span></div>`; }
                     html += `<div class="ce-total"><span>TOTAL</span><span>₱${total.toLocaleString()}</span></div>`;
           html += `<div style="margin-top:0.75rem;padding:0.4rem 0.5rem;background:rgba(192,98,42,0.06);border-radius:5px;border-left:2px solid var(--terra);font-size:0.65rem;color:var(--muted);line-height:1.5;"><strong style="color:var(--terra);">⚠ Estimate only.</strong> This computation is provided to assist in your booking. The actual amount due is subject to vehicle availability and final confirmation of your quotation.</div>`;
           breakdown.innerHTML = html;
@@ -2260,11 +2341,17 @@
             total += oooTotalExt22;
             html += `<div class="ce-row ce-warn"><span class="ce-label">🌙 Out-of-Office Hours Surcharge (7AM–7PM)</span><span class="ce-val">₱${oooTotalExt22.toLocaleString()}</span></div>`;
           }
-          if (deliveryCost > 0) { total += deliveryCost; html += `<div class="ce-row"><span class="ce-label">🚗 Delivery</span><span class="ce-val">₱${deliveryCost.toLocaleString()}</span></div>`; }
-          if (pickupCost   > 0) { total += pickupCost;   html += `<div class="ce-row"><span class="ce-label">🔄 Collection</span><span class="ce-val">₱${pickupCost.toLocaleString()} <span style="font-size:0.65rem;color:var(--terra);font-weight:600;">+ fuel top-up</span></span></div>`; }
           const driverEl2 = document.getElementById('fDriver');
-          const driverCost2 = driverEl2 && driverEl2.value === 'yes' ? 1000 * days : 0;
-          if (driverCost2 > 0) { total += driverCost2; html += `<div class="ce-row"><span class="ce-label">👤 Driver add-on</span><span class="ce-val">₱${driverCost2.toLocaleString()}</span></div>`; }
+          const isDriverYes2 = driverEl2 && driverEl2.value === 'yes';
+          const dLogic2 = computeDriverLogic(startDateVal, endDateVal, isDriverYes2);
+          const finalDeliveryCost2 = dLogic2.deliveryWaived ? 0 : deliveryCost;
+          const finalPickupCost2   = dLogic2.pickupWaived   ? 0 : pickupCost;
+
+          if (finalDeliveryCost2 > 0) { total += finalDeliveryCost2; html += `<div class="ce-row"><span class="ce-label">🚗 Delivery</span><span class="ce-val">₱${finalDeliveryCost2.toLocaleString()}</span></div>`; }
+          else if (deliveryCost > 0 && dLogic2.deliveryWaived) { html += `<div class="ce-row"><span class="ce-label">🚗 Delivery</span><span class="ce-val" style="color:var(--teal-dark);">Waived (driver day)</span></div>`; }
+          if (finalPickupCost2 > 0) { total += finalPickupCost2; html += `<div class="ce-row"><span class="ce-label">🔄 Collection</span><span class="ce-val">₱${finalPickupCost2.toLocaleString()} <span style="font-size:0.65rem;color:var(--terra);font-weight:600;">+ fuel top-up</span></span></div>`; }
+          else if (pickupCost > 0 && dLogic2.pickupWaived) { html += `<div class="ce-row"><span class="ce-label">🔄 Collection</span><span class="ce-val" style="color:var(--teal-dark);">Waived (driver day) <span style="font-size:0.65rem;color:var(--terra);font-weight:600;">+ fuel top-up</span></span></div>`; }
+          if (dLogic2.driverCost > 0) { total += dLogic2.driverCost; html += `<div class="ce-row"><span class="ce-label">👤 Driver (${getSelectedDriverDays().length} day(s))</span><span class="ce-val">₱${dLogic2.driverCost.toLocaleString()}</span></div>`; }
                     html += `<div class="ce-total"><span>TOTAL</span><span>₱${total.toLocaleString()}</span></div>`;
           html += `<div style="margin-top:0.75rem;padding:0.4rem 0.5rem;background:rgba(192,98,42,0.06);border-radius:5px;border-left:2px solid var(--terra);font-size:0.65rem;color:var(--muted);line-height:1.5;"><strong style="color:var(--terra);">⚠ Estimate only.</strong> This computation is provided to assist in your booking. The actual amount due is subject to vehicle availability and final confirmation of your quotation.</div>`;
           breakdown.innerHTML = html;
@@ -2300,21 +2387,29 @@
       const deliveryCost = AREA_SURCHARGES[deliveryCode] || 0;
       const pickupCost = AREA_SURCHARGES[pickupCode] || 0;
 
-      if (deliveryCost > 0) {
-        total += deliveryCost;
-        html += `<div class="ce-row"><span class="ce-label">🚗 Delivery</span><span class="ce-val">₱${deliveryCost.toLocaleString()}</span></div>`;
+      const driverVal = document.getElementById('fDriver').value;
+      const isDriverYesStd = driverVal === 'yes';
+      const dLogicStd = computeDriverLogic(startDateVal, endDateVal, isDriverYesStd);
+      const finalDeliveryCostStd = dLogicStd.deliveryWaived ? 0 : deliveryCost;
+      const finalPickupCostStd   = dLogicStd.pickupWaived   ? 0 : pickupCost;
+
+      if (finalDeliveryCostStd > 0) {
+        total += finalDeliveryCostStd;
+        html += `<div class="ce-row"><span class="ce-label">🚗 Delivery</span><span class="ce-val">₱${finalDeliveryCostStd.toLocaleString()}</span></div>`;
+      } else if (deliveryCost > 0 && dLogicStd.deliveryWaived) {
+        html += `<div class="ce-row"><span class="ce-label">🚗 Delivery</span><span class="ce-val" style="color:var(--teal-dark);">Waived (driver day)</span></div>`;
       }
-      if (pickupCost > 0) {
-        total += pickupCost;
-        html += `<div class="ce-row"><span class="ce-label">🔄 Collection</span><span class="ce-val">₱${pickupCost.toLocaleString()} <span style="font-size:0.65rem;color:var(--terra);font-weight:600;">+ fuel top-up</span></span></div>`;
+      if (finalPickupCostStd > 0) {
+        total += finalPickupCostStd;
+        html += `<div class="ce-row"><span class="ce-label">🔄 Collection</span><span class="ce-val">₱${finalPickupCostStd.toLocaleString()} <span style="font-size:0.65rem;color:var(--terra);font-weight:600;">+ fuel top-up</span></span></div>`;
+      } else if (pickupCost > 0 && dLogicStd.pickupWaived) {
+        html += `<div class="ce-row"><span class="ce-label">🔄 Collection</span><span class="ce-val" style="color:var(--teal-dark);">Waived (driver day) <span style="font-size:0.65rem;color:var(--terra);font-weight:600;">+ fuel top-up</span></span></div>`;
       }
 
       // Driver add-on
-      const driverVal = document.getElementById('fDriver').value;
-      if (driverVal === 'yes') {
-        const driverCost = 1000 * days;
-        total += driverCost;
-        html += `<div class="ce-row"><span class="ce-label">👤 Driver add-on</span><span class="ce-val">₱${driverCost.toLocaleString()}</span></div>`;
+      if (dLogicStd.driverCost > 0) {
+        total += dLogicStd.driverCost;
+        html += `<div class="ce-row"><span class="ce-label">👤 Driver (${getSelectedDriverDays().length} day(s))</span><span class="ce-val">₱${dLogicStd.driverCost.toLocaleString()}</span></div>`;
       }
 
     } else if (type === 'transport') {
@@ -2366,7 +2461,7 @@
 
   // Bind calculation to form changes
   const computeInputs = [
-    'fVehicle', 'fStartDate', 'fStartTime', 'fEndDate', 'fEndTime',
+    'fVehicle', 'fStartTime', 'fEndTime',
     'fDeliveryArea', 'fPickupArea', 'fDriver', 'fTransportTime', 'fTransportPax', 'fTourTime'
   ];
   ['change', 'input'].forEach(evt => {
@@ -2376,6 +2471,20 @@
         el.addEventListener(evt, calculateBookingCost);
       }
     });
+  });
+
+  // fStartDate / fEndDate: re-render driver picker FIRST (resets stale checkboxes),
+  // THEN run cost calculation — order matters so waivers don't carry over after a date change.
+  ['fStartDate', 'fEndDate'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('change', () => {
+        if (document.getElementById('fDriver').value === 'yes') {
+          renderDriverDaysPicker();
+        }
+        calculateBookingCost();
+      });
+    }
   });
 
   // Wire cost calculation trigger to Tab switchers and toggle helpers
