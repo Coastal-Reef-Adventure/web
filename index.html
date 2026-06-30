@@ -1840,12 +1840,12 @@
             </div>
 
             <div style="padding:0.55rem 0.85rem;background:#fffdf9;">
-              <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--wood);font-weight:700;margin-bottom:0.2rem;">Step 2 · Pay on Pick-up</div>
+              <div id="step2Title" style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--wood);font-weight:700;margin-bottom:0.2rem;">Step 2 · Pay on Rental Day</div>
               <div style="display:flex;align-items:baseline;gap:0.3rem;">
                 <div id="costBalance" style="font-size:1.15rem;font-weight:800;color:var(--wood);letter-spacing:-0.01em;">₱0</div>
-                <span style="font-size:0.6rem;color:var(--muted);">+ ₱5,000 deposit</span>
+                <span id="depositLabel" style="font-size:0.6rem;color:var(--muted);">+ ₱5,000 security deposit</span>
               </div>
-              <div style="font-size:0.6rem;color:var(--muted);margin-top:0.1rem;">balance + refundable deposit</div>
+              <div id="depositNote" style="font-size:0.6rem;color:var(--muted);margin-top:0.1rem;">balance + refundable security deposit</div>
             </div>
 
           </div>
@@ -2091,6 +2091,24 @@
     const breakdown = document.getElementById('costCalculationBreakdown');
     const downpaymentEl = document.getElementById('costDownpayment');
     const balanceEl = document.getElementById('costBalance');
+    const depositLabel = document.getElementById('depositLabel');
+    const depositNote  = document.getElementById('depositNote');
+
+    // Update Step 2 label based on service type
+    const step2Label = document.querySelector('#costCalculationBlock [id="depositNote"]')?.previousElementSibling?.previousElementSibling;
+    const step2Title = document.getElementById('step2Title');
+    if (step2Title) {
+      if (type === 'transport') step2Title.textContent = 'Step 2 · Pay on Transport Day';
+      else if (type === 'tour') step2Title.textContent = 'Step 2 · Pay on Tour Day';
+      else step2Title.textContent = 'Step 2 · Pay on Rental Day';
+    }
+    const isTransportOrTour = type === 'transport' || type === 'tour';
+    if (depositLabel) depositLabel.style.display = isTransportOrTour ? 'none' : 'inline';
+    if (depositNote) {
+      if (type === 'transport') depositNote.textContent = 'balance due on transport day';
+      else if (type === 'tour') depositNote.textContent = 'balance due on tour day';
+      else depositNote.textContent = 'balance + refundable security deposit';
+    }
 
     if (!type || !VEHICLE_RATES[selectedText]) {
       block.style.display = 'none';
