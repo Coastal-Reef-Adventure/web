@@ -750,10 +750,14 @@
     .ce-warn .ce-label { color: var(--terra); }
     .ce-warn .ce-val { color: var(--terra); }
     .ce-subtotal {
-      background: rgba(192,98,42,0.04);
-      margin: 0.1rem -0.85rem;
-      padding: 0.22rem 0.85rem;
+      background: rgba(192,98,42,0.1);
+      border-left: 3px solid var(--terra);
+      border-top: 2px solid var(--terra);
+      margin: 0.15rem -0.85rem;
+      padding: 0.28rem 0.85rem 0.28rem calc(0.85rem - 3px);
     }
+    .ce-subtotal .ce-label { color: var(--terra); font-weight: 600; }
+    .ce-subtotal .ce-strong { color: var(--terra); font-size: 0.82rem; }
     .ce-badge {
       display: inline-block;
       background: var(--terra);
@@ -769,12 +773,12 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.35rem 0 0.1rem;
-      margin-top: 0.15rem;
-      font-size: 0.82rem;
+      padding: 0.45rem 0.85rem;
+      margin: 0.2rem -0.85rem -0.55rem;
+      font-size: 0.88rem;
       font-weight: 800;
-      color: var(--terra);
-      border-top: 1.5px solid rgba(192,98,42,0.25);
+      color: #fff;
+      background: var(--terra);
       font-family: 'Outfit', sans-serif;
       letter-spacing: 0.04em;
     }
@@ -1101,7 +1105,7 @@
       <div class="term-num">05</div>
       <div class="term-content">
         <h4>Late Return</h4>
-        <p>A 30-minute grace period applies. Returns beyond the grace period incur a late charge of 10% of the vehicle's daily rate per hour late.</p>
+        <p>A 30-minute grace period applies. Returns beyond the grace period are charged as follows: <strong>1–3 hours over</strong> incur a late return fee of 10% of the daily rate per hour. Returns beyond 3 hours will be charged as an additional rental period — <strong>Day Use rate for 4–12 hours over</strong>, and <strong>24-hour rate for over 12 hours</strong>.</p>
       </div>
     </div>
     <div class="term-item">
@@ -2164,28 +2168,112 @@
       const rates = VEHICLE_RATES[selectedText];
       let dailyRate = is24Hr ? rates['24hr'] : rates.dayUse;
       let lateFeeLabel = '';
+      let extensionNote = '';
 
       if (lateHours > 0) {
         if (lateHours <= 3) {
+          // 1–3 hrs: separate late fee at 10%/hr
           lateFee = lateHours * 0.10 * dailyRate;
           lateFeeLabel = `${lateHours} hr(s) late · 10%/hr`;
         } else if (lateHours <= 12) {
-          lateFee = rates.dayUse;
-          lateFeeLabel = `${lateHours} hrs late · Day Use rate charged`;
+          // 4–12 hrs: +1 day at Day Use rate regardless of original type
+          days += 1;
+          // Keep original rate for base days, add Day Use for extension day
+          const origTotal = dailyRate * (days - 1);
+          const extTotal  = rates.dayUse;
+          const baseTotal = origTotal + extTotal;
+          total += baseTotal + lateFee;
+          extensionNote = `+1 Day Use (returned ${lateHours} hrs over)`;
+
+          const rentalBadge = is24Hr ? '24HR' : 'Day Use';
+          html += `<div class="ce-row"><span class="ce-label"><span class="ce-badge">${rentalBadge}</span> ${selectedText}</span><span class="ce-val">₱${dailyRate.toLocaleString()} × ${days - 1}d</span></div>`;
+          html += `<div class="ce-row"><span class="ce-label"><span class="ce-badge" style="background:rgba(192,98,42,0.85);">+Day Use</span> ${extensionNote}</span><span class="ce-val">+₱${rates.dayUse.toLocaleString()}</span></div>`;
+          html += `<div class="ce-row ce-subtotal"><span class="ce-label">Rental Subtotal</span><span class="ce-val ce-strong">= ₱${baseTotal.toLocaleString()}</span></div>`;
+
+          // Proceed to logistics
+          const deliveryCode = document.getElementById('fDeliveryArea').value;
+          const pickupCode   = document.getElementById('fPickupArea').value;
+          const deliveryCost = AREA_SURCHARGES[deliveryCode] || 0;
+          const pickupCost   = AREA_SURCHARGES[pickupCode]   || 0;
+          // Out-of-office hours — always before delivery
+          const startSurchargeExt = getOutOfOfficeSurcharge(startTimeVal);
+          const endSurchargeExt = getOutOfOfficeSurcharge(endTimeVal);
+          const oooTotalExt = startSurchargeExt + endSurchargeExt;
+          if (oooTotalExt > 0) {
+            total += oooTotalExt;
+            html += `<div class="ce-row ce-warn"><span class="ce-label">🌙 Out-of-Office Hours Surcharge (7AM–7PM)</span><span class="ce-val">₱${oooTotalExt.toLocaleString()}</span></div>`;
+          }
+          if (deliveryCost > 0) { total += deliveryCost; html += `<div class="ce-row"><span class="ce-label">🚗 Delivery</span><span class="ce-val">₱${deliveryCost.toLocaleString()}</span></div>`; }
+          if (pickupCost   > 0) { total += pickupCost;   html += `<div class="ce-row"><span class="ce-label">🔄 Collection</span><span class="ce-val">₱${pickupCost.toLocaleString()} <span style="font-size:0.65rem;color:var(--terra);font-weight:600;">+ fuel top-up</span></span></div>`; }
+          const driverEl = document.getElementById('fDriver');
+          const driverCost = driverEl && driverEl.value === 'yes' ? 1000 * days : 0;
+          if (driverCost > 0) { total += driverCost; html += `<div class="ce-row"><span class="ce-label">👤 Driver add-on</span><span class="ce-val">₱${driverCost.toLocaleString()}</span></div>`; }
+                    html += `<div class="ce-total"><span>TOTAL</span><span>₱${total.toLocaleString()}</span></div>`;
+          html += `<div style="margin-top:0.75rem;padding:0.4rem 0.5rem;background:rgba(192,98,42,0.06);border-radius:5px;border-left:2px solid var(--terra);font-size:0.65rem;color:var(--muted);line-height:1.5;"><strong style="color:var(--terra);">⚠ Estimate only.</strong> This computation is provided to assist in your booking. The actual amount due is subject to vehicle availability and final confirmation of your quotation.</div>`;
+          breakdown.innerHTML = html;
+          const dp = Math.ceil(total / 2);
+          downpaymentEl.textContent = `₱${dp.toLocaleString()}`;
+          balanceEl.textContent = `₱${(total - dp).toLocaleString()}`;
+          return;
+
         } else {
-          lateFee = rates['24hr'];
-          lateFeeLabel = `${lateHours} hrs late · 24hr rate charged`;
+          // 13+ hrs: +1 day at 24hr rate
+          days += 1;
+          const origTotal = dailyRate * (days - 1);
+          const extTotal  = rates['24hr'];
+          const baseTotal = origTotal + extTotal;
+          total += baseTotal + lateFee;
+          extensionNote = `+1 day, 24hr rate (returned ${lateHours} hrs over)`;
+
+          const rentalBadge = is24Hr ? '24HR' : 'Day Use';
+          html += `<div class="ce-row"><span class="ce-label"><span class="ce-badge">${rentalBadge}</span> ${selectedText}</span><span class="ce-val">₱${dailyRate.toLocaleString()} × ${days - 1}d</span></div>`;
+          html += `<div class="ce-row"><span class="ce-label"><span class="ce-badge" style="background:rgba(192,98,42,0.85);">+24HR</span> ${extensionNote}</span><span class="ce-val">+₱${rates['24hr'].toLocaleString()}</span></div>`;
+          html += `<div class="ce-row ce-subtotal"><span class="ce-label">Rental Subtotal</span><span class="ce-val ce-strong">= ₱${baseTotal.toLocaleString()}</span></div>`;
+
+          const deliveryCode = document.getElementById('fDeliveryArea').value;
+          const pickupCode   = document.getElementById('fPickupArea').value;
+          const deliveryCost = AREA_SURCHARGES[deliveryCode] || 0;
+          const pickupCost   = AREA_SURCHARGES[pickupCode]   || 0;
+          // Out-of-office hours — always before delivery
+          const startSurchargeExt2 = getOutOfOfficeSurcharge(startTimeVal);
+          const endSurchargeExt2 = getOutOfOfficeSurcharge(endTimeVal);
+          const oooTotalExt22 = startSurchargeExt2 + endSurchargeExt2;
+          if (oooTotalExt22 > 0) {
+            total += oooTotalExt22;
+            html += `<div class="ce-row ce-warn"><span class="ce-label">🌙 Out-of-Office Hours Surcharge (7AM–7PM)</span><span class="ce-val">₱${oooTotalExt22.toLocaleString()}</span></div>`;
+          }
+          if (deliveryCost > 0) { total += deliveryCost; html += `<div class="ce-row"><span class="ce-label">🚗 Delivery</span><span class="ce-val">₱${deliveryCost.toLocaleString()}</span></div>`; }
+          if (pickupCost   > 0) { total += pickupCost;   html += `<div class="ce-row"><span class="ce-label">🔄 Collection</span><span class="ce-val">₱${pickupCost.toLocaleString()} <span style="font-size:0.65rem;color:var(--terra);font-weight:600;">+ fuel top-up</span></span></div>`; }
+          const driverEl2 = document.getElementById('fDriver');
+          const driverCost2 = driverEl2 && driverEl2.value === 'yes' ? 1000 * days : 0;
+          if (driverCost2 > 0) { total += driverCost2; html += `<div class="ce-row"><span class="ce-label">👤 Driver add-on</span><span class="ce-val">₱${driverCost2.toLocaleString()}</span></div>`; }
+                    html += `<div class="ce-total"><span>TOTAL</span><span>₱${total.toLocaleString()}</span></div>`;
+          html += `<div style="margin-top:0.75rem;padding:0.4rem 0.5rem;background:rgba(192,98,42,0.06);border-radius:5px;border-left:2px solid var(--terra);font-size:0.65rem;color:var(--muted);line-height:1.5;"><strong style="color:var(--terra);">⚠ Estimate only.</strong> This computation is provided to assist in your booking. The actual amount due is subject to vehicle availability and final confirmation of your quotation.</div>`;
+          breakdown.innerHTML = html;
+          const dp2 = Math.ceil(total / 2);
+          downpaymentEl.textContent = `₱${dp2.toLocaleString()}`;
+          balanceEl.textContent = `₱${(total - dp2).toLocaleString()}`;
+          return;
         }
       }
 
       const baseTotal = dailyRate * days;
       total += baseTotal + lateFee;
 
-      html += `<div class="ce-row"><span class="ce-label"><span class="ce-badge">${is24Hr ? '24HR' : 'Day Use'}</span> ${selectedText}</span><span class="ce-val">₱${dailyRate.toLocaleString()} × ${days}d</span></div>`;
-      html += `<div class="ce-row ce-subtotal"><span class="ce-label">Base rental</span><span class="ce-val ce-strong">₱${baseTotal.toLocaleString()}</span></div>`;
-
+      const rentalBadge = is24Hr ? '24HR' : 'Day Use';
+      html += `<div class="ce-row"><span class="ce-label"><span class="ce-badge">${rentalBadge}</span> ${selectedText}</span><span class="ce-val">₱${dailyRate.toLocaleString()} × ${days}d</span></div>`;
+      html += `<div class="ce-row ce-subtotal"><span class="ce-label">Rental Subtotal</span><span class="ce-val ce-strong">= ₱${baseTotal.toLocaleString()}</span></div>`;
       if (lateFee > 0) {
-        html += `<div class="ce-row ce-warn"><span class="ce-label">⏰ Late return · ${lateFeeLabel}</span><span class="ce-val">₱${lateFee.toLocaleString()}</span></div>`;
+        html += `<div class="ce-row ce-warn"><span class="ce-label">⏰ Late Return Fee · ${lateFeeLabel}</span><span class="ce-val">₱${lateFee.toLocaleString()}</span></div>`;
+      }
+
+      // Out-of-office hours — right after late return
+      const startSurcharge = getOutOfOfficeSurcharge(startTimeVal);
+      const endSurcharge = getOutOfOfficeSurcharge(endTimeVal);
+      const oooTotal = startSurcharge + endSurcharge;
+      if (oooTotal > 0) {
+        total += oooTotal;
+        html += `<div class="ce-row ce-warn"><span class="ce-label">🌙 Out-of-Office Hours Surcharge (7AM–7PM)</span><span class="ce-val">₱${oooTotal.toLocaleString()}</span></div>`;
       }
 
       // Logistics surcharges
@@ -2209,16 +2297,6 @@
         const driverCost = 1000 * days;
         total += driverCost;
         html += `<div class="ce-row"><span class="ce-label">👤 Driver add-on</span><span class="ce-val">₱${driverCost.toLocaleString()}</span></div>`;
-      }
-
-      // Out-of-office hours
-      const startSurcharge = getOutOfOfficeSurcharge(startTimeVal);
-      const endSurcharge = getOutOfOfficeSurcharge(endTimeVal);
-      const oooTotal = startSurcharge + endSurcharge;
-
-      if (oooTotal > 0) {
-        total += oooTotal;
-        html += `<div class="ce-row ce-warn"><span class="ce-label">🌙 Out-of-Office Hours Surcharge (7AM–7PM)</span><span class="ce-val">₱${oooTotal.toLocaleString()}</span></div>`;
       }
 
     } else if (type === 'transport') {
@@ -2258,7 +2336,7 @@
     }
 
     html += `<div class="ce-total"><span>TOTAL</span><span>₱${total.toLocaleString()}</span></div>`;
-    html += `<div style="margin-top:0.45rem;padding:0.4rem 0.5rem;background:rgba(192,98,42,0.06);border-radius:5px;border-left:2px solid var(--terra);font-size:0.65rem;color:var(--muted);line-height:1.5;"><strong style="color:var(--terra);">⚠ Estimate only.</strong> This computation is provided to assist in your booking. The actual amount due is subject to vehicle availability and final confirmation of your quotation.</div>`;
+    html += `<div style="margin-top:0.75rem;padding:0.4rem 0.5rem;background:rgba(192,98,42,0.06);border-radius:5px;border-left:2px solid var(--terra);font-size:0.65rem;color:var(--muted);line-height:1.5;"><strong style="color:var(--terra);">⚠ Estimate only.</strong> This computation is provided to assist in your booking. The actual amount due is subject to vehicle availability and final confirmation of your quotation.</div>`;
     breakdown.innerHTML = html;
 
     const downpayment = Math.round(total / 2);
